@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Game : MonoBehaviour
 {
-
     #region Fields
 
     #endregion
@@ -36,5 +35,4 @@ public class Game : MonoBehaviour
     #region Metods
 
     #endregion
-
 }
