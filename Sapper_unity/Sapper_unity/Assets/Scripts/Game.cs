@@ -10,7 +10,9 @@ public class Game : MonoBehaviour
 
     #region Fields Initialized in Unity
     [SerializeField]
-
+    private GameObject _grid;
+    [SerializeField]
+    private Transform _tilePref;
 
     #endregion
 
