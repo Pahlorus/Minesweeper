@@ -38,6 +38,9 @@ public class Tile : MonoBehaviour
     #endregion
 
     #region Metods
+    public void OnClick()
+    {
 
+    }
     #endregion
 }
