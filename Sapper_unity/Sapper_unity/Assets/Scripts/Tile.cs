@@ -1,27 +1,36 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public class Tile : MonoBehaviour
 {
     #region Fields
     private Sprite _underTexture;
+    private Sprite _tileTexture;
     private int _numberBomb;
-    private bool _isBomb;
+   
     #endregion
 
     #region Fields Initialized in Unity
     [SerializeField]
+    private bool _isBomb;
     #endregion
 
-    public Tile(bool isBomb )
+    #region Properties
+    public bool IsBomb
     {
-        _isBomb = isBomb;
+        get { return _isBomb; }
+        set { _isBomb = value; }
     }
+    #endregion
 
     #region Unity Metods
     private void Awake()
     {
+
+
 
     }
     // Use this for initialization
@@ -40,7 +49,16 @@ public class Tile : MonoBehaviour
     #region Metods
     public void OnClick()
     {
-
+        if (_isBomb)
+        {
+            this.GetComponent<Image>().sprite = Resources.Load<Sprite>("TileUnderWithBomb");
+        }
+        else
+        {
+            this.GetComponent<Image>().sprite = Resources.Load<Sprite>("TileUnder");
+        }
+        
+        
     }
     #endregion
 }
