@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Scripting;
 using UnityEngine.UI;
 
 public class Game : MonoBehaviour
@@ -61,6 +60,7 @@ public class Game : MonoBehaviour
             for (int y = 0; y < _numberRow; y++)
             {
                 Transform tile = Instantiate(_tilePref, _grid.transform);
+                tile.GetChild(0).GetComponent<Text>().enabled = false;
                 _tileArray[y, x] = tile;
             }
         }
@@ -95,8 +95,14 @@ public class Game : MonoBehaviour
                         }
                     }
                 }
-                _tileArray[y, x].GetChild(0).GetComponent<Text>().text = count.ToString();
-
+                if (count!=0)
+                {
+                    _tileArray[y, x].GetChild(0).GetComponent<Text>().text = count.ToString();
+                }
+                else
+                {
+                    _tileArray[y, x].GetChild(0).GetComponent<Text>().text = string.Empty;
+                }
             }
         }
 

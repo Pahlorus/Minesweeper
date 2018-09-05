@@ -56,9 +56,8 @@ public class Tile : MonoBehaviour
         else
         {
             this.GetComponent<Image>().sprite = Resources.Load<Sprite>("TileUnder");
+            this.transform.GetChild(0).GetComponent<Text>().enabled = true;
         }
-        
-        
     }
     #endregion
 }
