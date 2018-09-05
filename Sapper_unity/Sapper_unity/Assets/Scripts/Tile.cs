@@ -7,15 +7,22 @@ using UnityEngine.UI;
 public class Tile : MonoBehaviour
 {
     #region Fields
-    private Sprite _underTexture;
-    private Sprite _tileTexture;
-    private int _numberBomb;
-   
+    
+    
+    private int _numberNeighborBomb;
+    private bool _isBomb;
+
     #endregion
 
     #region Fields Initialized in Unity
     [SerializeField]
-    private bool _isBomb;
+    private Image _tileImage;
+    [SerializeField]
+    private Text _tileTextNumberBomb;
+    [SerializeField]
+    private Sprite _underTexture;
+    [SerializeField]
+    private Sprite _underWithBombTexture;
     #endregion
 
     #region Properties
@@ -24,6 +31,22 @@ public class Tile : MonoBehaviour
         get { return _isBomb; }
         set { _isBomb = value; }
     }
+
+    public int NumberNeighborBomb
+    {
+        set
+        {
+            _tileTextNumberBomb.text = value.ToString();
+            _numberNeighborBomb = value;
+        }
+    }
+
+    public Text TextNumberBomb
+    {
+        get { return _tileTextNumberBomb; }
+        set { _tileTextNumberBomb = value; }
+    }
+
     #endregion
 
     #region Unity Metods
@@ -51,12 +74,12 @@ public class Tile : MonoBehaviour
     {
         if (_isBomb)
         {
-            this.GetComponent<Image>().sprite = Resources.Load<Sprite>("TileUnderWithBomb");
+            this._tileImage.sprite = _underWithBombTexture;
         }
         else
         {
-            this.GetComponent<Image>().sprite = Resources.Load<Sprite>("TileUnder");
-            this.transform.GetChild(0).GetComponent<Text>().enabled = true;
+            this._tileImage.sprite = _underTexture;
+            this._tileTextNumberBomb.enabled = true;
         }
     }
     #endregion

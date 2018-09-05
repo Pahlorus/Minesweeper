@@ -14,7 +14,7 @@ public class UIManager : MonoBehaviour
     #endregion
 
     #region Properties
-    public static UIManager Instance { get; set; }
+    public static UIManager Instance { get; private set; }
     #endregion
 
     #region Unity Metods
