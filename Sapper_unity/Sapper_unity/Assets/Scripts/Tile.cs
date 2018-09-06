@@ -36,15 +36,16 @@ public class Tile : MonoBehaviour
     {
         set
         {
-            _tileTextNumberBomb.text = value.ToString();
+            if(value != 0)
+            {
+                _tileTextNumberBomb.text = value.ToString();
+            }
+            else
+            {
+                _tileTextNumberBomb.text = string.Empty;
+            }
             _numberNeighborBomb = value;
         }
-    }
-
-    public Text TextNumberBomb
-    {
-        get { return _tileTextNumberBomb; }
-        set { _tileTextNumberBomb = value; }
     }
 
     #endregion
@@ -52,21 +53,9 @@ public class Tile : MonoBehaviour
     #region Unity Metods
     private void Awake()
     {
-
-
-
-    }
-    // Use this for initialization
-    void Start()
-    {
-
+        _tileTextNumberBomb.enabled = false;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     #endregion
 
     #region Metods
