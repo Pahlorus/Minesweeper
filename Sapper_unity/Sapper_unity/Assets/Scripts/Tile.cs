@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,11 +8,9 @@ using UnityEngine.UI;
 public class Tile : MonoBehaviour
 {
     #region Fields
-    
-    
     private int _numberNeighborBomb;
     private bool _isBomb;
-
+    private int[] _cell;
     #endregion
 
     #region Fields Initialized in Unity
@@ -32,8 +31,15 @@ public class Tile : MonoBehaviour
         set { _isBomb = value; }
     }
 
+    public int[] Cell
+    {
+        get { return _cell; }
+        set { _cell = value; }
+    }
+
     public int NumberNeighborBomb
     {
+        get { return _numberNeighborBomb; }
         set
         {
             if(value != 0)
@@ -50,10 +56,17 @@ public class Tile : MonoBehaviour
 
     #endregion
 
+    #region Events
+    public event EventHandler TileClick;
+    #endregion
+
+
+
     #region Unity Metods
     private void Awake()
     {
         _tileTextNumberBomb.enabled = false;
+        _cell = new int[2];
     }
 
     #endregion
@@ -61,15 +74,20 @@ public class Tile : MonoBehaviour
     #region Metods
     public void OnClick()
     {
+        OpenTile();
+        TileClick(this, EventArgs.Empty);
+    }
+    #endregion
+    public void OpenTile()
+    {
         if (_isBomb)
         {
-            this._tileImage.sprite = _underWithBombTexture;
+            _tileImage.sprite = _underWithBombTexture;
         }
         else
         {
-            this._tileImage.sprite = _underTexture;
-            this._tileTextNumberBomb.enabled = true;
+            _tileImage.sprite = _underTexture;
+            _tileTextNumberBomb.enabled = true;
         }
     }
-    #endregion
 }
