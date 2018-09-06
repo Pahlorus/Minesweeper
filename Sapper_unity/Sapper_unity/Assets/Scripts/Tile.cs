@@ -45,6 +45,24 @@ public class Tile : MonoBehaviour
             if(value != 0)
             {
                 _tileTextNumberBomb.text = value.ToString();
+                switch (value)
+                {
+                    case 1:
+                        _tileTextNumberBomb.color = Color.white;
+                        break;
+                    case 2:
+                        _tileTextNumberBomb.color = Color.cyan;
+                        break;
+                    case 3:
+                        _tileTextNumberBomb.color = Color.green;
+                        break;
+                    case 4:
+                        _tileTextNumberBomb.color = Color.red;
+                        break;
+                    default:
+                        _tileTextNumberBomb.color = Color.black;
+                        break;
+                }
             }
             else
             {
@@ -59,8 +77,6 @@ public class Tile : MonoBehaviour
     #region Events
     public event EventHandler TileClick;
     #endregion
-
-
 
     #region Unity Metods
     private void Awake()

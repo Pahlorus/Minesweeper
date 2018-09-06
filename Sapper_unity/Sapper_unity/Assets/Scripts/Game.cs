@@ -44,10 +44,6 @@ public class Game : MonoBehaviour
     }
     #endregion
 
-
-
-
-
     #region Metods
     public void TilesCreate()
     {
@@ -64,7 +60,6 @@ public class Game : MonoBehaviour
             }
         }
     }
-
 
     private void Tile_TileClick(object sender, EventArgs e)
     {
@@ -85,7 +80,6 @@ public class Game : MonoBehaviour
                 _tileArray[arr[0], arr[1]].OpenTile();
             }
         }
-        
     }
 
     public void BombsCreate()
@@ -106,6 +100,7 @@ public class Game : MonoBehaviour
         }
 
     }
+
     public void CountNeighborBombCreate()
     {
 
@@ -132,7 +127,6 @@ public class Game : MonoBehaviour
         }
     }
 
-
     public bool IsListContainsArray(List<int[]> list, int[] array)
     {
         bool isListContainsArray = false;
@@ -147,12 +141,10 @@ public class Game : MonoBehaviour
         return isListContainsArray;
     }
 
-
-
     public void FindNeighborEmptyCell(int x, int y, List<int[]> list)
     {
         bool isEmptyCell = false;
-        List<int[]> emptyCellList = list;
+       // List<int[]> emptyCellList = list;
         
         for (int x1 = x - 1; x1 <= x + 1; x1++)
         {
@@ -164,9 +156,9 @@ public class Game : MonoBehaviour
                     emptyCell[0] = y1;
                     emptyCell[1] = x1;
 
-                    if (!_tileArray[y1, x1].IsBomb && _tileArray[y1, x1].NumberNeighborBomb == 0 && !IsListContainsArray(emptyCellList, emptyCell))
+                    if (!_tileArray[y1, x1].IsBomb && _tileArray[y1, x1].NumberNeighborBomb == 0 && !IsListContainsArray(list, emptyCell))
                     {
-                        emptyCellList.Add(emptyCell);
+                        list.Add(emptyCell);
                         isEmptyCell = true;
                     }
                 }
@@ -174,9 +166,9 @@ public class Game : MonoBehaviour
         }
         if (isEmptyCell)
         {
-            for (int i =0; i< emptyCellList.Count;i++)
+            for (int i =0; i< list.Count;i++)
             {
-                FindNeighborEmptyCell(emptyCellList[i][1], emptyCellList[i][0], emptyCellList);
+                FindNeighborEmptyCell(list[i][1], list[i][0], list);
             }
         }
     }
