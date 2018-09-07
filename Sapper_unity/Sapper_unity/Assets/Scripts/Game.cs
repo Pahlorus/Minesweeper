@@ -170,7 +170,7 @@ public class Game : MonoBehaviour
 
     public void FindNeighborEmptyCell(int x, int y, List<int[]> list)
     {
-        bool isEmptyCell = false;
+        /*bool isEmptyCell = false;
        // List<int[]> emptyCellList = list;
         
         for (int x1 = x - 1; x1 <= x + 1; x1++)
@@ -197,7 +197,7 @@ public class Game : MonoBehaviour
             {
                 FindNeighborEmptyCell(list[i][1], list[i][0], list);
             }
-        }
+        }*/
     }
 
     public void FindNeighborTextCell(List<int[]> initislList, List<int[]> nextList)
