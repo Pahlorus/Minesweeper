@@ -10,7 +10,8 @@ public class Tile : MonoBehaviour
     #region Fields
     private int _numberNeighborBomb;
     private bool _isBomb;
-    private int[] _cell;
+    private bool _isOpen;
+    private Vector2 _tilePos;
     #endregion
 
     #region Fields Initialized in Unity
@@ -31,10 +32,16 @@ public class Tile : MonoBehaviour
         set { _isBomb = value; }
     }
 
-    public int[] Cell
+    public bool IsOpen
     {
-        get { return _cell; }
-        set { _cell = value; }
+        get { return _isOpen; }
+        set { _isOpen = value; }
+    }
+
+    public Vector2 TilePos
+    {
+        get { return _tilePos; }
+        set { _tilePos = value; }
     }
 
     public int NumberNeighborBomb
@@ -82,8 +89,9 @@ public class Tile : MonoBehaviour
     #region Unity Metods
     private void Awake()
     {
+        _isOpen = false;
         _tileTextNumberBomb.enabled = false;
-        _cell = new int[2];
+
     }
 
     #endregion
