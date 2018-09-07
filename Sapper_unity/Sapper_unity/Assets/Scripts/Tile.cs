@@ -51,13 +51,13 @@ public class Tile : MonoBehaviour
                         _tileTextNumberBomb.color = Color.white;
                         break;
                     case 2:
-                        _tileTextNumberBomb.color = Color.cyan;
+                        _tileTextNumberBomb.color = new Color32(49, 97, 236, 255);
                         break;
                     case 3:
-                        _tileTextNumberBomb.color = Color.green;
+                        _tileTextNumberBomb.color = new Color32(25, 150, 62, 255);
                         break;
                     case 4:
-                        _tileTextNumberBomb.color = Color.red;
+                        _tileTextNumberBomb.color = new Color32(186, 27, 57, 255);
                         break;
                     default:
                         _tileTextNumberBomb.color = Color.black;
@@ -76,6 +76,7 @@ public class Tile : MonoBehaviour
 
     #region Events
     public event EventHandler TileClick;
+    public event EventHandler BombDetonation;
     #endregion
 
     #region Unity Metods
@@ -93,12 +94,13 @@ public class Tile : MonoBehaviour
         OpenTile();
         TileClick(this, EventArgs.Empty);
     }
-    #endregion
+
     public void OpenTile()
     {
         if (_isBomb)
         {
             _tileImage.sprite = _underWithBombTexture;
+            BombDetonation(this, EventArgs.Empty);
         }
         else
         {
@@ -106,4 +108,6 @@ public class Tile : MonoBehaviour
             _tileTextNumberBomb.enabled = true;
         }
     }
+    #endregion
+
 }

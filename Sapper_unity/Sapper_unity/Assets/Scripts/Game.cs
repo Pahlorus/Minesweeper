@@ -32,19 +32,39 @@ public class Game : MonoBehaviour
 
     #region Unity Metods
 
-    void Awake()
-    {
-        _gridLayoutGroup.constraintCount = _gridHeight;
-        _numberBomb = _bombPercent * (_gridHeight * _gridWidth) / 100;
-        _tileArray = new Tile[_gridHeight, _gridWidth];
-        _bombArrayList = new List<int[]>();
-        TilesCreate();
-        BombsCreate();
-        CountNeighborBombCreate();
-    }
     #endregion
 
     #region Metods
+    public void StartGame()
+    {
+        _tileArray = new Tile[_gridHeight, _gridWidth];
+        _bombArrayList = new List<int[]>();
+        _gridLayoutGroup.constraintCount = _gridHeight;
+        _numberBomb = _bombPercent * (_gridHeight * _gridWidth) / 100;
+        UIManager.Instance.SwitchGridOn();
+        TilesCreate();
+        BombsCreate();
+        CountNeighborBombCreate();
+        UIManager.Instance.SwitchMenuOff();
+    }
+
+    public void StopGame()
+    {
+        for (int x= 0; x< _gridWidth; x++)
+        {
+            for (int y = 0; y < _gridHeight; y++)
+            {
+                _tileArray[y, x].TileClick-= Tile_TileClick;
+                _tileArray[y, x].BombDetonation -= Tile_BombDetonation;
+                Destroy(_tileArray[y, x].gameObject);           
+            }
+        }
+        //Array.Clear(_tileArray, 0, _tileArray.Length);
+        _bombArrayList.Clear();
+        UIManager.Instance.SwitchEndGameOff();
+        UIManager.Instance.SwitchMenuOn();
+    }
+
     public void TilesCreate()
     {
         for (int x = 0; x < _gridWidth; x++)
@@ -56,9 +76,16 @@ public class Game : MonoBehaviour
                 tile.Cell[0] = y;
                 tile.Cell[1] = x;
                 tile.TileClick += Tile_TileClick;
+                tile.BombDetonation += Tile_BombDetonation;
                 _tileArray[y, x] = tile;
             }
         }
+    }
+
+    private void Tile_BombDetonation(object sender, EventArgs e)
+    {
+        UIManager.Instance.SwitchEndGameOn();
+        UIManager.Instance.SwitchGridOff();
     }
 
     private void Tile_TileClick(object sender, EventArgs e)
