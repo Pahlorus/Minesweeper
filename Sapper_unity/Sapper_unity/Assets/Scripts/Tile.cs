@@ -11,7 +11,7 @@ public class Tile : MonoBehaviour
     private int _numberNeighborBomb;
     private bool _isBomb;
     private bool _isOpen;
-    private Vector2 _tilePos;
+    private Vector2Int _tilePos;
     #endregion
 
     #region Fields Initialized in Unity
@@ -23,6 +23,8 @@ public class Tile : MonoBehaviour
     private Sprite _underTexture;
     [SerializeField]
     private Sprite _underWithBombTexture;
+    [SerializeField]
+    private Color32[] _colors;
     #endregion
 
     #region Properties
@@ -38,7 +40,7 @@ public class Tile : MonoBehaviour
         set { _isOpen = value; }
     }
 
-    public Vector2 TilePos
+    public Vector2Int TilePos
     {
         get { return _tilePos; }
         set { _tilePos = value; }
