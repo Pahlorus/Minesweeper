@@ -44,7 +44,7 @@ public class Game : MonoBehaviour
         UIManager.Instance.SwitchGridOn();
         TilesCreate();
         BombsCreate();
-        CountNeighborBombCreate();
+        CountNeighbourBombs();
         UIManager.Instance.SwitchMenuOff();
     }
 
@@ -54,8 +54,8 @@ public class Game : MonoBehaviour
         {
             for (int y = 0; y < _gridHeight; y++)
             {
-                _tileArray[y, x].TileClick-= Tile_TileClick;
-                _tileArray[y, x].BombDetonation -= Tile_BombDetonation;
+               _tileArray[y, x].TileClick-= Tile_TileClick;
+               _tileArray[y, x].BombDetonation -= Tile_BombDetonation;
                 Destroy(_tileArray[y, x].gameObject);           
             }
         }
@@ -71,9 +71,11 @@ public class Game : MonoBehaviour
             {
                 Tile tile = Instantiate(_tile, _gridTransform);
                 tile.transform.localScale = Vector3.one;
-                Vector2Int tilePos = new Vector2Int();
-                tilePos.y = y;
-                tilePos.x = x;
+                Vector2Int tilePos = new Vector2Int
+                {
+                    y = y,
+                    x = x
+                };
                 tile.TilePos = tilePos;
                 tile.TileClick += Tile_TileClick;
                 tile.BombDetonation += Tile_BombDetonation;
@@ -84,60 +86,61 @@ public class Game : MonoBehaviour
 
     private void Tile_BombDetonation(object sender, EventArgs e)
     {
-        UIManager.Instance.SwitchEndGameOn();
         UIManager.Instance.SwitchGridOff();
+        UIManager.Instance.SwitchEndGameOn();
     }
 
     private void Tile_TileClick(object sender, EventArgs e)
     {
         Tile oneTile = sender as Tile;
-        if (oneTile.NumberNeighborBomb == 0 && !oneTile.IsBomb)
+        if(oneTile.NumberNeighborBomb == 0 && !oneTile.IsBomb)
         {
-            foreach (Vector2 tilePos in FindNeighborEmptyCell(oneTile.TilePos))
+            foreach (Vector2Int tilePos in FindAllNeighbourClosedTiles(oneTile.TilePos))
             {
-                _tileArray[(int)tilePos.y, (int)tilePos.x].OpenTile();
+                _tileArray[tilePos.y, tilePos.x].OpenTile();
             }
         }
     }
 
     private void BombsCreate()
     {
-        List<Vector2> bombArrayList = new List<Vector2>();
+        List<Vector2Int> bombArrayList = new List<Vector2Int>();
         while (bombArrayList.Count < _numberBomb)
         {
-            Vector2 bombPoint;
-            bombPoint.y = _random.Next(_gridHeight);
-            bombPoint.x = _random.Next(_gridWidth);
+            Vector2Int bombPoint = new Vector2Int
+            {
+                y = _random.Next(_gridHeight),
+                x = _random.Next(_gridWidth)
+            };
+
             if (!bombArrayList.Contains(bombPoint))
             {
                 bombArrayList.Add(bombPoint);
             }
         }
-        foreach (Vector2 vector in bombArrayList)
+        foreach (Vector2Int vector in bombArrayList)
         {
-            _tileArray[(int)vector.y, (int)vector.x].IsBomb = true;
+            _tileArray[vector.y, vector.x].IsBomb = true;
         }
     }
 
-    private void CountNeighborBombCreate()
+    private void CountNeighbourBombs()
     {
-
         for (int x = 0; x < _gridWidth; x++)
         {
             for (int y = 0; y < _gridHeight; y++)
             {
                 int count = 0;
-                for (int x1 = x - 1; x1 <= x + 1; x1++)
+                Vector2Int tilePos = new Vector2Int
                 {
-                    for (int y1 = y - 1; y1 <= y + 1; y1++)
+                    x = x,
+                    y = y
+                };
+                foreach (Vector2Int vector in FindNeighbourTiles(tilePos))
+                {
+                    if (_tileArray[vector.y, vector.x].IsBomb)
                     {
-                        if (y1 < _gridHeight && x1 < _gridWidth && y1 >= 0 && x1 >= 0 && !(x1 == x && y1 == y))
-                        {
-                            if (_tileArray[y1, x1].IsBomb)
-                            {
-                                count = count + 1;
-                            }
-                        }
+                        count = count + 1;
                     }
                 }
                 _tileArray[y, x].NumberNeighborBomb = count;
@@ -145,7 +148,33 @@ public class Game : MonoBehaviour
         }
     }
 
-    private IEnumerable<Vector2Int> FindNeighborEmptyCell(Vector2Int tilePos)
+    private IEnumerable<Vector2Int> FindAllNeighbourClosedTiles(Vector2Int tilePos)
+    {
+        foreach (Vector2Int vector in FindNeighbourTiles(tilePos))
+        {
+            if (!_tileArray[vector.y, vector.x].IsOpen && !_tileArray[vector.y, vector.x].IsBomb && _tileArray[vector.y, vector.x].NumberNeighborBomb == 0)
+            {
+                yield return vector;
+                foreach (Vector2Int newVector in FindAllNeighbourClosedTiles(vector))
+                {
+                    if (_tileArray[newVector.y, newVector.x].IsOpen)
+                    {
+                        yield break;
+                    }
+                    yield return newVector;
+                    _tileArray[newVector.y, newVector.x].IsOpen = true;
+                }
+                _tileArray[vector.y, vector.x].IsOpen = true;
+            }
+            if (!_tileArray[vector.y, vector.x].IsOpen && !_tileArray[vector.y, vector.x].IsBomb && _tileArray[vector.y, vector.x].NumberNeighborBomb != 0)
+            {
+                yield return vector;
+                _tileArray[vector.y, vector.x].IsOpen = true;
+            }
+        }
+    }
+
+    private IEnumerable<Vector2Int> FindNeighbourTiles(Vector2Int tilePos)
     {
         for (int x = tilePos.x - 1; x <= tilePos.x + 1; x++)
         {
@@ -153,31 +182,12 @@ public class Game : MonoBehaviour
             {
                 if (y < _gridHeight && x < _gridWidth && y >= 0 && x >= 0 && !(x == tilePos.x && y == tilePos.y))
                 {
-
-                    Vector2Int newTilePos = new Vector2Int();
-                    newTilePos.x = x;
-                    newTilePos.y = y;
-
-                    if(!_tileArray[newTilePos.y, newTilePos.x].IsOpen && !_tileArray[newTilePos.y, newTilePos.x].IsBomb && _tileArray[newTilePos.y, newTilePos.x].NumberNeighborBomb == 0)
+                    Vector2Int newTilePos = new Vector2Int
                     {
-                        yield return newTilePos;
-                        foreach (Vector2Int vector in FindNeighborEmptyCell(newTilePos))
-                        {
-                            if (_tileArray[vector.y, vector.x].IsOpen)
-                            {
-                                yield break;
-                            }
-                            yield return vector;
-                            _tileArray[vector.y, vector.x].IsOpen = true;
-                        }
-                        _tileArray[newTilePos.y, newTilePos.x].IsOpen = true;
-                    }
-
-                    if (!_tileArray[newTilePos.y, newTilePos.x].IsOpen && !_tileArray[newTilePos.y, newTilePos.x].IsBomb && _tileArray[newTilePos.y, newTilePos.x].NumberNeighborBomb != 0)
-                    {
-                        yield return newTilePos;
-                        _tileArray[newTilePos.y, newTilePos.x].IsOpen = true;
-                    }
+                        x = x,
+                        y = y
+                    };
+                    yield return newTilePos;
                 }
             }
         }

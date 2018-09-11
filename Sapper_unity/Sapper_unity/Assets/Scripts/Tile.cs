@@ -9,8 +9,11 @@ public class Tile : MonoBehaviour
 {
     #region Fields
     private int _numberNeighborBomb;
+
     private bool _isBomb;
+
     private bool _isOpen;
+
     private Vector2Int _tilePos;
     #endregion
 
@@ -53,25 +56,8 @@ public class Tile : MonoBehaviour
         {
             if(value != 0)
             {
+                _tileTextNumberBomb.color = _colors[value - 1];
                 _tileTextNumberBomb.text = value.ToString();
-                switch (value)
-                {
-                    case 1:
-                        _tileTextNumberBomb.color = Color.white;
-                        break;
-                    case 2:
-                        _tileTextNumberBomb.color = new Color32(49, 97, 236, 255);
-                        break;
-                    case 3:
-                        _tileTextNumberBomb.color = new Color32(25, 150, 62, 255);
-                        break;
-                    case 4:
-                        _tileTextNumberBomb.color = new Color32(186, 27, 57, 255);
-                        break;
-                    default:
-                        _tileTextNumberBomb.color = Color.black;
-                        break;
-                }
             }
             else
             {
