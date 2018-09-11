@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 public class Game : MonoBehaviour
 {
@@ -12,7 +14,6 @@ public class Game : MonoBehaviour
     private int _bombPercent = 10;
     private int _numberBomb;
     private Tile[,] _tileArray;
-    private List<int[]> _bombArrayList;
     private System.Random _random = new System.Random();
     #endregion
 
@@ -38,13 +39,12 @@ public class Game : MonoBehaviour
     public void StartGame()
     {
         _tileArray = new Tile[_gridHeight, _gridWidth];
-        _bombArrayList = new List<int[]>();
         _gridLayoutGroup.constraintCount = _gridHeight;
         _numberBomb = _bombPercent * (_gridHeight * _gridWidth) / 100;
         UIManager.Instance.SwitchGridOn();
         TilesCreate();
         BombsCreate();
-        CountNeighborBombCreate();
+        CountNeighbourBombs();
         UIManager.Instance.SwitchMenuOff();
     }
 
@@ -54,18 +54,16 @@ public class Game : MonoBehaviour
         {
             for (int y = 0; y < _gridHeight; y++)
             {
-                _tileArray[y, x].TileClick-= Tile_TileClick;
-                _tileArray[y, x].BombDetonation -= Tile_BombDetonation;
+               _tileArray[y, x].TileClick-= Tile_TileClick;
+               _tileArray[y, x].BombDetonation -= Tile_BombDetonation;
                 Destroy(_tileArray[y, x].gameObject);           
             }
         }
-        //Array.Clear(_tileArray, 0, _tileArray.Length);
-        _bombArrayList.Clear();
         UIManager.Instance.SwitchEndGameOff();
         UIManager.Instance.SwitchMenuOn();
     }
 
-    public void TilesCreate()
+    private void TilesCreate()
     {
         for (int x = 0; x < _gridWidth; x++)
         {
@@ -73,8 +71,12 @@ public class Game : MonoBehaviour
             {
                 Tile tile = Instantiate(_tile, _gridTransform);
                 tile.transform.localScale = Vector3.one;
-                tile.Cell[0] = y;
-                tile.Cell[1] = x;
+                Vector2Int tilePos = new Vector2Int
+                {
+                    y = y,
+                    x = x
+                };
+                tile.TilePos = tilePos;
                 tile.TileClick += Tile_TileClick;
                 tile.BombDetonation += Tile_BombDetonation;
                 _tileArray[y, x] = tile;
@@ -84,69 +86,61 @@ public class Game : MonoBehaviour
 
     private void Tile_BombDetonation(object sender, EventArgs e)
     {
-        UIManager.Instance.SwitchEndGameOn();
         UIManager.Instance.SwitchGridOff();
+        UIManager.Instance.SwitchEndGameOn();
     }
 
     private void Tile_TileClick(object sender, EventArgs e)
     {
         Tile oneTile = sender as Tile;
-
-        if (oneTile.NumberNeighborBomb == 0 && !oneTile.IsBomb)
+        if(oneTile.NumberNeighborBomb == 0 && !oneTile.IsBomb)
         {
-            List<int[]> emptyCellList = new List<int[]>();
-            List<int[]> textCellList = new List<int[]>();
-            FindNeighborEmptyCell(oneTile.Cell[1], oneTile.Cell[0], emptyCellList);
-            FindNeighborTextCell(emptyCellList, textCellList);
-            foreach (int[] arr in emptyCellList)
+            foreach (Vector2Int tilePos in FindAllNeighbourClosedTiles(oneTile.TilePos))
             {
-                _tileArray[arr[0], arr[1]].OpenTile();
-            }
-            foreach (int[] arr in textCellList)
-            {
-                _tileArray[arr[0], arr[1]].OpenTile();
+                _tileArray[tilePos.y, tilePos.x].OpenTile();
             }
         }
     }
 
-    public void BombsCreate()
+    private void BombsCreate()
     {
-        while (_bombArrayList.Count < _numberBomb)
+        List<Vector2Int> bombArrayList = new List<Vector2Int>();
+        while (bombArrayList.Count < _numberBomb)
         {
-            int[] _bombPoint = new int[2]; ;
-            _bombPoint[0] = _random.Next(_gridHeight);
-            _bombPoint[1] = _random.Next(_gridWidth);
-            if (!IsListContainsArray(_bombArrayList,_bombPoint))
+            Vector2Int bombPoint = new Vector2Int
             {
-                _bombArrayList.Add(_bombPoint);
+                y = _random.Next(_gridHeight),
+                x = _random.Next(_gridWidth)
+            };
+
+            if (!bombArrayList.Contains(bombPoint))
+            {
+                bombArrayList.Add(bombPoint);
             }
         }
-        foreach (int[] arr in _bombArrayList)
+        foreach (Vector2Int vector in bombArrayList)
         {
-            _tileArray[arr[0], arr[1]].IsBomb = true;
+            _tileArray[vector.y, vector.x].IsBomb = true;
         }
-
     }
 
-    public void CountNeighborBombCreate()
+    private void CountNeighbourBombs()
     {
-
         for (int x = 0; x < _gridWidth; x++)
         {
             for (int y = 0; y < _gridHeight; y++)
             {
                 int count = 0;
-                for (int x1 = x - 1; x1 <= x + 1; x1++)
+                Vector2Int tilePos = new Vector2Int
                 {
-                    for (int y1 = y - 1; y1 <= y + 1; y1++)
+                    x = x,
+                    y = y
+                };
+                foreach (Vector2Int vector in FindNeighbourTiles(tilePos))
+                {
+                    if (_tileArray[vector.y, vector.x].IsBomb)
                     {
-                        if (y1 < _gridHeight && x1 < _gridWidth && y1 >= 0 && x1 >= 0 && !(x1 == x && y1 == y))
-                        {
-                            if (_tileArray[y1, x1].IsBomb)
-                            {
-                                count = count + 1;
-                            }
-                        }
+                        count = count + 1;
                     }
                 }
                 _tileArray[y, x].NumberNeighborBomb = count;
@@ -154,75 +148,50 @@ public class Game : MonoBehaviour
         }
     }
 
-    public bool IsListContainsArray(List<int[]> list, int[] array)
+    private IEnumerable<Vector2Int> FindAllNeighbourClosedTiles(Vector2Int tilePos)
     {
-        bool isListContainsArray = false;
-        for (int i = 0; i<list.Count; i++)
+        foreach (Vector2Int vector in FindNeighbourTiles(tilePos))
         {
-            if (list[i].SequenceEqual(array))
+            if (!_tileArray[vector.y, vector.x].IsOpen && !_tileArray[vector.y, vector.x].IsBomb && _tileArray[vector.y, vector.x].NumberNeighborBomb == 0)
             {
-                isListContainsArray = true;
-                break;
-            }
-        }
-        return isListContainsArray;
-    }
-
-    public void FindNeighborEmptyCell(int x, int y, List<int[]> list)
-    {
-        bool isEmptyCell = false;
-       // List<int[]> emptyCellList = list;
-        
-        for (int x1 = x - 1; x1 <= x + 1; x1++)
-        {
-            for (int y1 = y - 1; y1 <= y + 1; y1++)
-            {
-                if (y1 < _gridHeight && x1 < _gridWidth && y1 >= 0 && x1 >= 0 && !(x1 == x && y1 == y))
+                yield return vector;
+                foreach (Vector2Int newVector in FindAllNeighbourClosedTiles(vector))
                 {
-                    int[] emptyCell = new int[2];
-                    emptyCell[0] = y1;
-                    emptyCell[1] = x1;
-
-                    if (!_tileArray[y1, x1].IsBomb && _tileArray[y1, x1].NumberNeighborBomb == 0 && !IsListContainsArray(list, emptyCell))
+                    if (_tileArray[newVector.y, newVector.x].IsOpen)
                     {
-                        list.Add(emptyCell);
-                        isEmptyCell = true;
+                        yield break;
                     }
+                    yield return newVector;
+                    _tileArray[newVector.y, newVector.x].IsOpen = true;
                 }
+                _tileArray[vector.y, vector.x].IsOpen = true;
             }
-        }
-        if (isEmptyCell)
-        {
-            for (int i =0; i< list.Count;i++)
+            if (!_tileArray[vector.y, vector.x].IsOpen && !_tileArray[vector.y, vector.x].IsBomb && _tileArray[vector.y, vector.x].NumberNeighborBomb != 0)
             {
-                FindNeighborEmptyCell(list[i][1], list[i][0], list);
+                yield return vector;
+                _tileArray[vector.y, vector.x].IsOpen = true;
             }
         }
     }
 
-    public void FindNeighborTextCell(List<int[]> initislList, List<int[]> nextList)
+    private IEnumerable<Vector2Int> FindNeighbourTiles(Vector2Int tilePos)
     {
-        for (int i = 0; i< initislList.Count; i++)
+        for (int x = tilePos.x - 1; x <= tilePos.x + 1; x++)
         {
-            int x = initislList[i][1];
-            int y = initislList[i][0];
-            for (int x1 = x - 1; x1 <= x + 1; x1++)
+            for (int y = tilePos.y - 1; y <= tilePos.y + 1; y++)
             {
-                for (int y1 = y - 1; y1 <= y + 1; y1++)
+                if (y < _gridHeight && x < _gridWidth && y >= 0 && x >= 0 && !(x == tilePos.x && y == tilePos.y))
                 {
-                    if (y1 < _gridHeight && x1 < _gridWidth && y1 >= 0 && x1 >= 0 && !(x1 == x && y1 == y))
+                    Vector2Int newTilePos = new Vector2Int
                     {
-                        int[] emptyCell = new int[2];
-                        emptyCell[0] = y1;
-                        emptyCell[1] = x1;
-                        if (!_tileArray[y1, x1].IsBomb && _tileArray[y1, x1].NumberNeighborBomb != 0 && !IsListContainsArray(nextList, emptyCell))
-                        {
-                            nextList.Add(emptyCell);
-                        }
-                    }
+                        x = x,
+                        y = y
+                    };
+                    yield return newTilePos;
                 }
             }
         }
     }
+
     #endregion
 }
