@@ -9,8 +9,12 @@ public class Tile : MonoBehaviour
 {
     #region Fields
     private int _numberNeighborBomb;
+
     private bool _isBomb;
-    private int[] _cell;
+
+    private bool _isOpen;
+
+    private Vector2Int _tilePos;
     #endregion
 
     #region Fields Initialized in Unity
@@ -22,6 +26,8 @@ public class Tile : MonoBehaviour
     private Sprite _underTexture;
     [SerializeField]
     private Sprite _underWithBombTexture;
+    [SerializeField]
+    private Color32[] _colors;
     #endregion
 
     #region Properties
@@ -31,10 +37,16 @@ public class Tile : MonoBehaviour
         set { _isBomb = value; }
     }
 
-    public int[] Cell
+    public bool IsOpen
     {
-        get { return _cell; }
-        set { _cell = value; }
+        get { return _isOpen; }
+        set { _isOpen = value; }
+    }
+
+    public Vector2Int TilePos
+    {
+        get { return _tilePos; }
+        set { _tilePos = value; }
     }
 
     public int NumberNeighborBomb
@@ -44,25 +56,8 @@ public class Tile : MonoBehaviour
         {
             if(value != 0)
             {
+                _tileTextNumberBomb.color = _colors[value - 1];
                 _tileTextNumberBomb.text = value.ToString();
-                switch (value)
-                {
-                    case 1:
-                        _tileTextNumberBomb.color = Color.white;
-                        break;
-                    case 2:
-                        _tileTextNumberBomb.color = new Color32(49, 97, 236, 255);
-                        break;
-                    case 3:
-                        _tileTextNumberBomb.color = new Color32(25, 150, 62, 255);
-                        break;
-                    case 4:
-                        _tileTextNumberBomb.color = new Color32(186, 27, 57, 255);
-                        break;
-                    default:
-                        _tileTextNumberBomb.color = Color.black;
-                        break;
-                }
             }
             else
             {
@@ -82,8 +77,9 @@ public class Tile : MonoBehaviour
     #region Unity Metods
     private void Awake()
     {
+        _isOpen = false;
         _tileTextNumberBomb.enabled = false;
-        _cell = new int[2];
+
     }
 
     #endregion
