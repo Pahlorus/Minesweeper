@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 
 public class Tile : MonoBehaviour
@@ -9,6 +10,10 @@ public class Tile : MonoBehaviour
     private Image _tileImage;
     [SerializeField]
     private Text _tileTextNumberBomb;
+    [SerializeField]
+    private Sprite _upperTexture;
+    [SerializeField]
+    private Sprite _upperTextureWithFlag;
     [SerializeField]
     private Sprite _underTexture;
     [SerializeField]
@@ -30,7 +35,7 @@ public class Tile : MonoBehaviour
     public bool IsOpen
     {
         get { return _isOpen; }
-        set { _isOpen = value; }
+        private set { _isOpen = value; }
     }
 
     public Vector2Int TilePos
@@ -70,6 +75,15 @@ public class Tile : MonoBehaviour
     public void OnClick()
     {
         TileClick(this, EventArgs.Empty);
+    }
+
+    public  void OnPointerClick(BaseEventData eventData)
+    {
+        PointerEventData newEventData = (PointerEventData)eventData;
+        if (newEventData.button == PointerEventData.InputButton.Right)
+        {
+            _tileImage.sprite = _upperTextureWithFlag;
+        }
     }
 
     public void OpenTile()
