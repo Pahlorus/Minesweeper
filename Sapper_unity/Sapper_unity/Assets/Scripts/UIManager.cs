@@ -4,27 +4,21 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    #region Fields Initialized in Unity
+
     [SerializeField]
     private GameObject _menuScreen;
     [SerializeField]
     private GameObject _gridScreen;
     [SerializeField]
     private GameObject _endGameScreen;
-    #endregion
 
-    #region Properties
     public static UIManager Instance { get; private set; }
-    #endregion
 
-    #region Unity Metods
     void Awake()
     {
         Instance = this;
     }
-    #endregion
 
-    #region Metods
     public void SwitchMenuOff()
     {
         _menuScreen.SetActive(false);
@@ -54,5 +48,4 @@ public class UIManager : MonoBehaviour
     {
         _endGameScreen.SetActive(false);
     }
-    #endregion
 }

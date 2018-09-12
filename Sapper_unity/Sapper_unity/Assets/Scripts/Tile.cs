@@ -1,23 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 
 public class Tile : MonoBehaviour
 {
-    #region Fields
-    private int _numberNeighborBomb;
-
-    private bool _isBomb;
-
-    private bool _isOpen;
-
-    private Vector2Int _tilePos;
-    #endregion
-
-    #region Fields Initialized in Unity
     [SerializeField]
     private Image _tileImage;
     [SerializeField]
@@ -28,9 +15,12 @@ public class Tile : MonoBehaviour
     private Sprite _underWithBombTexture;
     [SerializeField]
     private Color32[] _colors;
-    #endregion
 
-    #region Properties
+    private int _numberNeighborBomb;
+    private bool _isBomb;
+    private bool _isOpen;
+    private Vector2Int _tilePos;
+
     public bool IsBomb
     {
         get { return _isBomb; }
@@ -67,27 +57,18 @@ public class Tile : MonoBehaviour
         }
     }
 
-    #endregion
-
-    #region Events
     public event EventHandler TileClick;
     public event EventHandler BombDetonation;
-    #endregion
 
-    #region Unity Metods
+
     private void Awake()
     {
         _isOpen = false;
         _tileTextNumberBomb.enabled = false;
-
     }
 
-    #endregion
-
-    #region Metods
     public void OnClick()
     {
-        OpenTile();
         TileClick(this, EventArgs.Empty);
     }
 
@@ -97,13 +78,14 @@ public class Tile : MonoBehaviour
         {
             _tileImage.sprite = _underWithBombTexture;
             BombDetonation(this, EventArgs.Empty);
+            _isOpen = true;
         }
         else
         {
             _tileImage.sprite = _underTexture;
             _tileTextNumberBomb.enabled = true;
+            _isOpen = true;
+
         }
     }
-    #endregion
-
 }
