@@ -1,2 +1,2 @@
-# Sapper_unity
-Minesweeper training project.
+# Minesweeper
+Training project.
